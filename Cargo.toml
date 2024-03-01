@@ -218,7 +218,7 @@ tendermint-proto = { version = "0.31" }
 
 # Fluence
 fluence-actor-sdk = { version = "0.1.2" }
-fluence-fendermint-syscall = { version = "0.1.5" }
+fluence-fendermint-syscall = { git = "https://github.com/fluencelabs/fluence-fendermint.git", package = "fluence-fendermint-syscall", branch = "fluence-reduced-cache"}
 
 [patch.crates-io]
 # Use stable-only features.
