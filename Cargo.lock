@@ -1129,7 +1129,7 @@ dependencies = [
 [[package]]
 name = "ccp-randomx"
 version = "0.2.0"
-source = "git+https://github.com/fluencelabs/capacity-commitment-prover.git?branch=chore/replace-randomx-wrapper#081f8c02d53fd966b82f8cdb7db87562d8437f2a"
+source = "git+https://github.com/fluencelabs/capacity-commitment-prover.git?branch=reduced-argon-cache#bbbe2a9bc38a2906b730864c000f0b2183985c9a"
 dependencies = [
  "bitflags 2.4.2",
  "ccp-shared",
@@ -1143,7 +1143,7 @@ dependencies = [
 [[package]]
 name = "ccp-shared"
 version = "0.1.0"
-source = "git+https://github.com/fluencelabs/capacity-commitment-prover.git?branch=chore/replace-randomx-wrapper#081f8c02d53fd966b82f8cdb7db87562d8437f2a"
+source = "git+https://github.com/fluencelabs/capacity-commitment-prover.git?branch=reduced-argon-cache#bbbe2a9bc38a2906b730864c000f0b2183985c9a"
 dependencies = [
  "hex",
  "newtype_derive",
@@ -3688,12 +3688,12 @@ checksum = "8c7abd8c356076d225ab5f285b00687a3a1ea5a4eee44624593d36c6e29c8aff"
 [[package]]
 name = "fluence-fendermint-shared"
 version = "0.1.1"
-source = "git+https://github.com/fluencelabs/fluence-fendermint.git?branch=fluence-reduced-cache#b2d580128e758b9778e02de92e0aee673cb33cea"
+source = "git+https://github.com/fluencelabs/fluence-fendermint.git?branch=fluence-reduced-cache#6eb2834d4bda385ccf7902e90ab28c08fd4cb0a4"
 
 [[package]]
 name = "fluence-fendermint-syscall"
 version = "0.1.5"
-source = "git+https://github.com/fluencelabs/fluence-fendermint.git?branch=fluence-reduced-cache#b2d580128e758b9778e02de92e0aee673cb33cea"
+source = "git+https://github.com/fluencelabs/fluence-fendermint.git?branch=fluence-reduced-cache#6eb2834d4bda385ccf7902e90ab28c08fd4cb0a4"
 dependencies = [
  "ccp-randomx",
  "fluence-fendermint-shared 0.1.1 (git+https://github.com/fluencelabs/fluence-fendermint.git?branch=fluence-reduced-cache)",
