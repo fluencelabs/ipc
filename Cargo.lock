@@ -505,7 +505,7 @@ checksum = "b6d7b9decdf35d8908a7e3ef02f64c5e9b1695e230154c0e8de3969142d9b94c"
 dependencies = [
  "futures",
  "pharos",
- "rustc_version",
+ "rustc_version 0.4.0",
 ]
 
 [[package]]
@@ -1123,7 +1123,7 @@ checksum = "2d886547e41f740c616ae73108f6eb70afe6d940c7bc697cb30f13daec073037"
 dependencies = [
  "camino",
  "cargo-platform",
- "semver",
+ "semver 1.0.22",
  "serde",
  "serde_json",
  "thiserror",
@@ -1163,6 +1163,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02f341c093d19155a6e41631ce5971aac4e9a868262212153124c15fa22d1cdc"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "ccp-randomx"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4511823469e9000d277344b2760f22dc0b0d1a9ca86ac4e2ef7c94f8c6d5e404"
+dependencies = [
+ "bitflags 2.4.2",
+ "ccp-shared",
+ "cmake",
+ "hex",
+ "libc",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "ccp-shared"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59c62fc42a386ef31c1a6fb9d553c98e13be5ebfbc7d74e754e9e7ad2fab1563"
+dependencies = [
+ "hex",
+ "newtype_derive",
+ "rand",
+ "serde",
 ]
 
 [[package]]
@@ -1319,6 +1346,15 @@ name = "clap_lex"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98cc8fbded0c607b7ba9dd60cd98df59af97e84d24e49c8557331cfc26d301ce"
+
+[[package]]
+name = "cmake"
+version = "0.1.50"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a31c789563b815f77f4250caee12365734369f942439b7defd71e18a48197130"
+dependencies = [
+ "cc",
+]
 
 [[package]]
 name = "coins-bip32"
@@ -1773,7 +1809,7 @@ dependencies = [
  "digest 0.10.7",
  "fiat-crypto",
  "platforms",
- "rustc_version",
+ "rustc_version 0.4.0",
  "subtle",
  "zeroize",
 ]
@@ -1949,7 +1985,7 @@ dependencies = [
  "convert_case",
  "proc-macro2",
  "quote",
- "rustc_version",
+ "rustc_version 0.4.0",
  "syn 1.0.109",
 ]
 
@@ -2504,7 +2540,7 @@ dependencies = [
  "chrono",
  "ethers-core",
  "reqwest",
- "semver",
+ "semver 1.0.22",
  "serde",
  "serde_json",
  "thiserror",
@@ -2614,7 +2650,7 @@ dependencies = [
  "path-slash",
  "rayon",
  "regex",
- "semver",
+ "semver 1.0.22",
  "serde",
  "serde_json",
  "solang-parser",
@@ -2817,6 +2853,25 @@ dependencies = [
  "hex-literal 0.4.1",
  "log",
  "multihash 0.18.1",
+ "num-derive 0.3.3",
+ "num-traits",
+ "serde",
+]
+
+[[package]]
+name = "fendermint_actor_fluence"
+version = "12.0.0"
+dependencies = [
+ "anyhow",
+ "cid",
+ "fil_actors_runtime",
+ "fluence-actor-sdk",
+ "frc42_dispatch",
+ "fvm_ipld_blockstore",
+ "fvm_ipld_encoding",
+ "fvm_ipld_hamt 0.9.0",
+ "fvm_shared",
+ "log",
  "num-derive 0.3.3",
  "num-traits",
  "serde",
@@ -3273,6 +3328,7 @@ dependencies = [
 name = "fendermint_vm_interpreter"
 version = "0.1.0"
 dependencies = [
+ "ambassador",
  "anyhow",
  "arbitrary",
  "async-stm",
@@ -3281,6 +3337,7 @@ dependencies = [
  "ethers",
  "fendermint_actor_chainmetadata",
  "fendermint_actor_eam",
+ "fendermint_actor_fluence",
  "fendermint_actors",
  "fendermint_crypto",
  "fendermint_eth_hardhat",
@@ -3295,6 +3352,7 @@ dependencies = [
  "fendermint_vm_message",
  "fendermint_vm_resolver",
  "fendermint_vm_topdown",
+ "fluence-fendermint-syscall",
  "futures-core",
  "futures-util",
  "fvm",
@@ -3669,6 +3727,36 @@ checksum = "c606d892c9de11507fa0dcffc116434f94e105d0bbdc4e405b61519464c49d7b"
 dependencies = [
  "eyre",
  "paste",
+]
+
+[[package]]
+name = "fluence-actor-sdk"
+version = "0.1.2"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=feat/batching#9cde7fb413ff2f9f6ae96d12c303e8e2c59e51c8"
+dependencies = [
+ "fluence-fendermint-shared",
+ "fvm_sdk",
+ "fvm_shared",
+ "num-traits",
+]
+
+[[package]]
+name = "fluence-fendermint-shared"
+version = "0.1.1"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=feat/batching#9cde7fb413ff2f9f6ae96d12c303e8e2c59e51c8"
+
+[[package]]
+name = "fluence-fendermint-syscall"
+version = "0.1.5"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=feat/batching#9cde7fb413ff2f9f6ae96d12c303e8e2c59e51c8"
+dependencies = [
+ "ccp-randomx",
+ "ccp-shared",
+ "fluence-fendermint-shared",
+ "fvm",
+ "fvm_shared",
+ "num-traits",
+ "rayon",
 ]
 
 [[package]]
@@ -6441,6 +6529,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
 
 [[package]]
+name = "newtype_derive"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac8cd24d9f185bb7223958d8c1ff7a961b74b1953fd05dba7cc568a63b3861ec"
+dependencies = [
+ "rustc_version 0.1.7",
+]
+
+[[package]]
 name = "nix"
 version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7032,7 +7129,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9567389417feee6ce15dd6527a8a1ecac205ef62c2932bcf3d9f6fc5b78b414"
 dependencies = [
  "futures",
- "rustc_version",
+ "rustc_version 0.4.0",
 ]
 
 [[package]]
@@ -7967,11 +8064,20 @@ checksum = "3e75f6a532d0fd9f7f13144f392b6ad56a32696bfcd9c78f797f16bbb6f072d6"
 
 [[package]]
 name = "rustc_version"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5f5376ea5e30ce23c03eb77cbe4962b988deead10910c372b226388b594c084"
+dependencies = [
+ "semver 0.1.20",
+]
+
+[[package]]
+name = "rustc_version"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
 dependencies = [
- "semver",
+ "semver 1.0.22",
 ]
 
 [[package]]
@@ -8252,6 +8358,12 @@ dependencies = [
  "core-foundation-sys",
  "libc",
 ]
+
+[[package]]
+name = "semver"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4f410fedcf71af0345d7607d246e7ad15faaadd49d240ee3b24e5dc21a820ac"
 
 [[package]]
 name = "semver"
@@ -8656,7 +8768,7 @@ dependencies = [
  "curve25519-dalek",
  "rand_core",
  "ring 0.17.8",
- "rustc_version",
+ "rustc_version 0.4.0",
  "sha2 0.10.8",
  "subtle",
 ]
@@ -8776,7 +8888,7 @@ dependencies = [
  "rand",
  "rand_chacha",
  "rayon",
- "semver",
+ "semver 1.0.22",
  "serde",
  "serde_json",
  "sha2 0.10.8",
@@ -9003,7 +9115,7 @@ dependencies = [
  "hex",
  "once_cell",
  "reqwest",
- "semver",
+ "semver 1.0.22",
  "serde",
  "serde_json",
  "sha2 0.10.8",
@@ -9239,7 +9351,7 @@ dependencies = [
  "hyper-rustls 0.22.1",
  "peg",
  "pin-project",
- "semver",
+ "semver 1.0.22",
  "serde",
  "serde_bytes",
  "serde_json",
@@ -10159,7 +10271,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1dfcdb72d96f01e6c85b6bf20102e7423bdbaad5c337301bab2bbf253d26413c"
 dependencies = [
  "indexmap 2.2.3",
- "semver",
+ "semver 1.0.22",
 ]
 
 [[package]]
@@ -10170,7 +10282,7 @@ checksum = "9dbe55c8f9d0dbd25d9447a5a889ff90c0cc3feaa7395310d3d826b2c703eaab"
 dependencies = [
  "bitflags 2.4.2",
  "indexmap 2.2.3",
- "semver",
+ "semver 1.0.22",
 ]
 
 [[package]]
@@ -10668,7 +10780,7 @@ dependencies = [
  "js-sys",
  "log",
  "pharos",
- "rustc_version",
+ "rustc_version 0.4.0",
  "send_wrapper 0.6.0",
  "thiserror",
  "wasm-bindgen",
