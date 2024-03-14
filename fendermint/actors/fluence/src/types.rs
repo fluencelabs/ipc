@@ -1,6 +1,7 @@
 use fluence_actor_sdk::TARGET_HASH_SIZE;
 use fvm_ipld_encoding::strict_bytes;
 use fvm_ipld_encoding::tuple::*;
+use fvm_ipld_encoding::BytesDe;
 
 #[derive(Debug, Serialize_tuple, Deserialize_tuple)]
 pub struct RandomXArguments {
@@ -18,11 +19,12 @@ pub struct RandomXResult {
 
 #[derive(Debug, Serialize_tuple, Deserialize_tuple)]
 pub struct RandomXArgumentsBatched {
-    pub global_nonce: Vec<Vec<u8>>,
-    pub local_nonce: Vec<Vec<u8>>,
+    // To be replaced with Vec<Nonce> once we have a proper type in shared for it
+    pub global_nonce: Vec<BytesDe>,
+    pub local_nonce: Vec<BytesDe>,
 }
 
 #[derive(Debug, Serialize_tuple, Deserialize_tuple)]
 pub struct RandomXResultBatched {
-    pub result: Vec<[u8; TARGET_HASH_SIZE]>,
+    pub result: Vec<BytesDe>,
 }

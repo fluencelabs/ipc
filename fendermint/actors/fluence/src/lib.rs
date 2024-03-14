@@ -51,13 +51,29 @@ impl FluenceActor {
         rt: &impl Runtime,
         params: RandomXArgumentsBatched,
     ) -> Result<RandomXResultBatched, ActorError> {
+        use fluence_actor_sdk::TARGET_HASH_SIZE;
+        use fvm_ipld_encoding::BytesDe;
+
         log::info!("actor::run_randomx: start {params:?}");
         rt.validate_immediate_caller_accept_any()?;
+        let result_len = params.global_nonce.len();
 
+        // The result is a vector of hashes, each hash is TARGET_HASH_SIZE bytes.
         let result =
             fluence_actor_sdk::run_randomx_batched(&params.global_nonce, &params.local_nonce)
                 .map_err(randomx_failed)?;
+
         log::info!("actor::run_randomx: result is {result:?}");
+        log::info!("actor::run_randomx: result batch len is {result_len:?}");
+
+        let result = result[..result_len * TARGET_HASH_SIZE]
+            .chunks_exact(TARGET_HASH_SIZE)
+            .map(|chunk| {
+                let mut hash_arr: Vec<u8> = vec![0; TARGET_HASH_SIZE];
+                hash_arr.copy_from_slice(chunk);
+                BytesDe(hash_arr)
+            })
+            .collect();
 
         let result = RandomXResultBatched { result };
         Ok(result)
