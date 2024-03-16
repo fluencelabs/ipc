@@ -21,6 +21,7 @@ pub enum StakingOperation {
 
 impl From<u8> for StakingOperation {
     fn from(value: u8) -> Self {
+        log::error!("StakingOperation::from {}", value);
         match value {
             0 => Self::Deposit,
             1 => Self::Withdraw,
@@ -49,6 +50,7 @@ impl TryFrom<lib_staking_change_log::NewStakingChangeRequestFilter> for StakingC
     fn try_from(
         value: lib_staking_change_log::NewStakingChangeRequestFilter,
     ) -> Result<Self, Self::Error> {
+        log::error!("StakingOperation::try_from {:?}", value);
         Ok(Self {
             configuration_number: value.configuration_number,
             change: StakingChange {

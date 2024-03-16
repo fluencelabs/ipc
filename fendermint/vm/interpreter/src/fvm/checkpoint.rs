@@ -415,10 +415,7 @@ fn power_diff(current: PowerTable, next: PowerTable) -> PowerUpdates {
         }
     }
 
-    tracing::error!(
-        diff = format!("{diff:?}"),
-        "new difference calculated"
-    );
+    tracing::error!(diff = format!("{diff:?}"), "new difference calculated");
 
     PowerUpdates(diff)
 }

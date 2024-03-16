@@ -200,6 +200,7 @@ impl TopDownFinalityQuery for EthSubnetManager {
         let mut changes = vec![];
         let mut hash = None;
         for (event, meta) in query_with_meta(ev, contract.client()).await? {
+            log::warn!("get_validator_changeset: {event:?}\n{meta:?}");
             if let Some(h) = hash {
                 if h != meta.block_hash {
                     return Err(anyhow!("block hash not equal"));
@@ -837,7 +838,11 @@ impl SubnetManager for EthSubnetManager {
 
         let signer = Arc::new(self.get_signer(from)?);
         let call = contract.set_federated_power(addresses, pubkeys, power_u256);
+        let result = call.estimate_gas().await?;
+        log::warn!("set_federated_power: {result:?}");
+        log::warn!("set_federated_power: {call:?}");
         let txn = call_with_premium_estimation(signer, call).await?;
+        log::warn!("set_federated_power: {txn:?}");
         let pending_tx = txn.send().await?;
         let receipt = pending_tx.retries(TRANSACTION_RECEIPT_RETRIES).await?;
         block_number_from_receipt(receipt)
@@ -1196,12 +1201,14 @@ where
 async fn premium_estimation(
     signer: Arc<DefaultSignerMiddleware>,
 ) -> Result<(ethers::types::U256, ethers::types::U256)> {
+    log::warn!("premium_estimation: 1");
     let base_fee_per_gas = signer
         .get_block(ethers::types::BlockNumber::Latest)
         .await?
         .ok_or_else(|| anyhow!("Latest block not found"))?
         .base_fee_per_gas
         .ok_or_else(|| anyhow!("EIP-1559 not activated"))?;
+    log::warn!("premium_estimation: 2");
 
     let fee_history = signer
         .fee_history(
@@ -1211,8 +1218,12 @@ async fn premium_estimation(
         )
         .await?;
 
+    log::warn!("premium_estimation: 3");
+
     let max_priority_fee_per_gas = estimate_priority_fee(fee_history.reward); //overestimate?
+    log::warn!("premium_estimation: 4");
     let potential_max_fee = base_fee_surged(base_fee_per_gas);
+    log::warn!("premium_estimation: 5");
     let max_fee_per_gas = if max_priority_fee_per_gas > potential_max_fee {
         max_priority_fee_per_gas + potential_max_fee
     } else {
