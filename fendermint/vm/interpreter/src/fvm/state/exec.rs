@@ -101,7 +101,7 @@ where
     block_hash: Option<BlockHash>,
 
     /// State of parameters that are outside the control of the FVM but can change and need to be persisted.
-    params: FvmUpdatableParams,
+    pub params: FvmUpdatableParams,
 
     /// Indicate whether the parameters have been updated.
     params_dirty: bool,

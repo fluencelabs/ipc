@@ -382,6 +382,12 @@ where
 /// * include any new validator, or validators whose power has been updated
 /// * include validators to be removed with a power of 0, as [expected](https://github.com/informalsystems/tendermint-rs/blob/bcc0b377812b8e53a02dff156988569c5b3c81a2/rpc/src/dialect/end_block.rs#L12-L14) by CometBFT
 fn power_diff(current: PowerTable, next: PowerTable) -> PowerUpdates {
+    tracing::error!(
+        current = format!("{current:?}"),
+        next = format!("{next:?}"),
+        "power diff"
+    );
+
     let current = into_power_map(current);
     let next = into_power_map(next);
 
@@ -408,6 +414,11 @@ fn power_diff(current: PowerTable, next: PowerTable) -> PowerUpdates {
             diff.push(insert);
         }
     }
+
+    tracing::error!(
+        diff = format!("{diff:?}"),
+        "new difference calculated"
+    );
 
     PowerUpdates(diff)
 }

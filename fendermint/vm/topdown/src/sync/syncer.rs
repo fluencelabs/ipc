@@ -237,8 +237,7 @@ where
 
         tracing::debug!(
             height,
-            staking_requests = data.1.len(),
-            cross_messages = data.2.len(),
+            staking_requests = format!("{data:?}"),
             "fetched data"
         );
 

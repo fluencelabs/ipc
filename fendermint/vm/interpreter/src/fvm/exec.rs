@@ -163,10 +163,19 @@ where
     }
 
     async fn end(&self, mut state: Self::State) -> anyhow::Result<(Self::State, Self::EndOutput)> {
+        tracing::warn!(
+            state = format!("{:?}", state.params),
+            "end begin"
+        );
         let updates = if let Some((checkpoint, updates)) =
             checkpoint::maybe_create_checkpoint(&self.gateway, &mut state)
                 .context("failed to create checkpoint")?
         {
+            tracing::warn!(
+            state = format!("{updates:?}"),
+            "some updates"
+        );
+
             // Asynchronously broadcast signature, if validating.
             if let Some(ref ctx) = self.validator_ctx {
                 // Do not resend past signatures.
