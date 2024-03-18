@@ -36,15 +36,6 @@ impl IPCEamActor {
     }
 
     fn ensure_deployer_allowed(rt: &impl Runtime) -> Result<(), ActorError> {
-        let caller = rt.message().caller();
-
-        let state: State = rt.state()?;
-        if !state.can_deploy(rt.store(), &caller)? {
-            return Err(ActorError::forbidden(String::from(
-                "sender not allowed to deploy contracts",
-            )));
-        }
-
         Ok(())
     }
 }
