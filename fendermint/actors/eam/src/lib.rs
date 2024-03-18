@@ -35,7 +35,9 @@ impl IPCEamActor {
         Ok(())
     }
 
-    fn ensure_deployer_allowed(rt: &impl Runtime) -> Result<(), ActorError> {
+    fn ensure_deployer_allowed(_rt: &impl Runtime) -> Result<(), ActorError> {
+        println!("inside ensure_deployer_allowed");
+        eprintln!("inside ensure_deployer_allowed");
         Ok(())
     }
 }
