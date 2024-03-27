@@ -26,7 +26,7 @@ CMT_RPC_HOST_PORT = { value = "26657", condition = { env_not_set = ["CMT_RPC_HOS
 ETHAPI_HOST_PORT = { value = "8545", condition = { env_not_set = ["ETHAPI_HOST_PORT"] } }
 RESOLVER_HOST_PORT = { value = "26655", condition = { env_not_set = ["RESOLVER_HOST_PORT"] } }
 
-BALANCE = { value = "1000", condition = { env_not_set = ["BALANCE"] } }
+BALANCE = { value = "100000", condition = { env_not_set = ["BALANCE"] } }
 BASE_FEE = { value = "1000", condition = { env_not_set = ["BASE_FEE"] } }
 TIMESTAMP = { value = "1680101412", condition = { env_not_set = ["TIMESTAMP"] } }
 POWER_SCALE = { value = "3", condition = { env_not_set = ["POWER_SCALE"] } }
@@ -103,7 +103,7 @@ VERBOSITY = ""
 LOG_LEVEL = "info"
 ETHAPI_LOG_LEVEL = { value = "${LOG_LEVEL}", condition = { env_not_set = ["ETHAPI_LOG_LEVEL"] } }
 FM_LOG_LEVEL = { value = "${LOG_LEVEL}", condition = { env_not_set = ["FM_LOG_LEVEL"] } }
-TESTNET_NODES_NUMBER = 7
+TESTNET_NODES_NUMBER = 21
 
 [env.fluence]
 FM_PULL_SKIP = true
