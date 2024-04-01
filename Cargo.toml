@@ -123,6 +123,7 @@ num_enum = "0.7.2"
 paste = "1"
 pin-project = "1.1.2"
 prometheus = "0.13"
+prometheus_exporter = "0.8"
 prost = { version = "0.11" }
 quickcheck = "1"
 quickcheck_async = "0.1"
@@ -155,7 +156,7 @@ tokio-util = { version = "0.7.8", features = ["compat"] }
 tokio-tungstenite = { version = "0.18.0", features = ["native-tls"] }
 toml = "0.8"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "registry"] }
 tracing-appender = "0.2.3"
 url = { version = "2.4.1", features = ["serde"] }
 zeroize = "1.6"
