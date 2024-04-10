@@ -15,6 +15,9 @@ builtin_actors_bundle = "bundle.car"
 custom_actors_bundle = "custom_actors_bundle.car"
 # Where to reach CometBFT for queries or broadcasting transactions.
 tendermint_rpc_url = "http://127.0.0.1:26657"
+# Block height where we should gracefully stop the node to perform maintenance or
+# with planning for an upcoming coordinated upgrade. Set to 0 to never halt.
+halt_height = 0
 
 # Secp256k1 private key used for signing transactions. Leave empty if not validating,
 # or if it's not needed to sign and broadcast transactions as a validator.
@@ -40,6 +43,16 @@ port = 26658
 [db]
 # Keep unlimited history by default.
 state_hist_size = 0
+
+[metrics]
+# Enable the export of metrics over HTTP.
+enabled = true
+
+[metrics.listen]
+# Only accept connections from a Prometheus scraper, assumed to be running locally.
+host = "127.0.0.1"
+# The default port where the Prometheus exporter makes the metrics available.
+port = 9184
 
 [snapshots]
 # Enable the export and import of snapshots.
@@ -169,6 +182,11 @@ max_provider_age = 300
 # The address where we will listen to incoming connections.
 # Leaving it empty disables the IPLD Resolver.
 listen_addr = ""
+
+# A list of known external addresses this node is reachable on.
+# If left empty we rely on the `libp2p::Swarm` and the `Identity` protocol to discover it
+# automatically as it's reported back to us from peers, although this might not work sufficiently.
+external_addresses = []
 
 # Maximum number of incoming connections.
 max_incoming = 30

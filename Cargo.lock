@@ -262,6 +262,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96d30a06541fbafbc7f82ed10c06164cfbd2c401138f6addd8404629c4b16711"
 
 [[package]]
+name = "ascii"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d92bec98840b8f03a5ff5413de5293bfcd8bf96467cf5452609f939ec6f5de16"
+
+[[package]]
 name = "ascii-canvas"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1254,6 +1260,12 @@ dependencies = [
  "serde",
  "windows-targets 0.52.4",
 ]
+
+[[package]]
+name = "chunked_transfer"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e4de3bc4ea267985becf712dc6d9eed8b04c953b3fcfb339ebc87acd9804901"
 
 [[package]]
 name = "cid"
@@ -2858,6 +2870,7 @@ dependencies = [
  "fil_actor_eam",
  "fil_actors_evm_shared",
  "fil_actors_runtime",
+ "frc42_dispatch",
  "fvm_ipld_blockstore",
  "fvm_ipld_encoding",
  "fvm_shared",
@@ -2921,6 +2934,7 @@ dependencies = [
  "fendermint_rocksdb",
  "fendermint_rpc",
  "fendermint_storage",
+ "fendermint_tracing",
  "fendermint_vm_actor_interface",
  "fendermint_vm_core",
  "fendermint_vm_encoding",
@@ -2941,6 +2955,7 @@ dependencies = [
  "ipc-provider",
  "ipc_ipld_resolver",
  "k256 0.11.6",
+ "lazy_static",
  "libipld",
  "libp2p",
  "libp2p-bitswap",
@@ -2948,6 +2963,9 @@ dependencies = [
  "multiaddr",
  "num-traits",
  "openssl",
+ "paste",
+ "prometheus",
+ "prometheus_exporter",
  "prost",
  "quickcheck",
  "quickcheck_macros",
@@ -3122,6 +3140,7 @@ dependencies = [
  "async-recursion",
  "async-trait",
  "bollard",
+ "either",
  "env_logger 0.10.2",
  "ethers",
  "fendermint_crypto",
@@ -3131,15 +3150,19 @@ dependencies = [
  "fendermint_vm_core",
  "fendermint_vm_encoding",
  "fendermint_vm_genesis",
+ "fendermint_vm_message",
  "futures",
  "fvm_shared",
  "hex",
  "ipc-api",
+ "ipc-provider",
+ "ipc_actors_abis",
  "lazy_static",
  "multihash 0.18.1",
  "quickcheck",
  "quickcheck_async",
  "quickcheck_macros",
+ "regex",
  "serde",
  "serde_json",
  "serde_with 2.3.3",
@@ -3150,6 +3173,7 @@ dependencies = [
  "tokio",
  "toml 0.8.11",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -3240,6 +3264,13 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "toml 0.8.11",
+]
+
+[[package]]
+name = "fendermint_tracing"
+version = "0.1.0"
+dependencies = [
+ "tracing",
 ]
 
 [[package]]
@@ -3354,6 +3385,7 @@ dependencies = [
  "fendermint_eth_hardhat",
  "fendermint_rpc",
  "fendermint_testing",
+ "fendermint_tracing",
  "fendermint_vm_actor_interface",
  "fendermint_vm_core",
  "fendermint_vm_encoding",
@@ -3487,6 +3519,7 @@ dependencies = [
  "ethers",
  "fendermint_crypto",
  "fendermint_testing",
+ "fendermint_tracing",
  "fendermint_vm_event",
  "fendermint_vm_genesis",
  "fvm_ipld_encoding",
@@ -5052,6 +5085,7 @@ dependencies = [
  "lazy_static",
  "log",
  "num-traits",
+ "num_enum",
  "serde",
  "serde_json",
  "serde_tuple",
@@ -5134,6 +5168,7 @@ dependencies = [
  "serde_bytes",
  "serde_json",
  "serde_tuple",
+ "serde_with 2.3.3",
  "strum",
  "tempfile",
  "thiserror",
@@ -7507,6 +7542,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "prometheus_exporter"
+version = "0.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "caf17cbebe0bfdf4f279ef84eeefe0d50468b0b7116f078acf41d456e48fe81a"
+dependencies = [
+ "ascii",
+ "lazy_static",
+ "log",
+ "prometheus",
+ "thiserror",
+ "tiny_http",
+]
+
+[[package]]
 name = "proptest"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9469,6 +9518,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
 dependencies = [
  "crunchy",
+]
+
+[[package]]
+name = "tiny_http"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5f8734c6d6943ad6df6b588d228a87b4af184998bcffa268ceddf05c2055a8c"
+dependencies = [
+ "ascii",
+ "chunked_transfer",
+ "log",
+ "time",
+ "url",
 ]
 
 [[package]]

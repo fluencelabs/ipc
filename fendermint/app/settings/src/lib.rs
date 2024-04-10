@@ -8,6 +8,7 @@ use fvm_shared::econ::TokenAmount;
 use ipc_api::subnet_id::SubnetID;
 use serde::Deserialize;
 use serde_with::{serde_as, DurationSeconds};
+use std::net::{SocketAddr, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use tendermint_rpc::Url;
@@ -41,7 +42,6 @@ pub struct SocketAddress {
     pub host: String,
     pub port: u32,
 }
-
 impl ToString for SocketAddress {
     fn to_string(&self) -> String {
         format!("{}:{}", self.host, self.port)
@@ -53,6 +53,16 @@ impl std::net::ToSocketAddrs for SocketAddress {
 
     fn to_socket_addrs(&self) -> std::io::Result<Self::Iter> {
         self.to_string().to_socket_addrs()
+    }
+}
+
+impl TryInto<std::net::SocketAddr> for SocketAddress {
+    type Error = std::io::Error;
+
+    fn try_into(self) -> Result<SocketAddr, Self::Error> {
+        self.to_socket_addrs()?
+            .next()
+            .ok_or_else(|| std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))
     }
 }
 
@@ -120,6 +130,8 @@ pub struct TopDownSettings {
     pub proposal_delay: BlockHeight,
     /// The max number of blocks one should make the topdown proposal
     pub max_proposal_range: BlockHeight,
+    /// The max number of blocks to hold in memory for parent syncer
+    pub max_cache_blocks: Option<BlockHeight>,
     /// Parent syncing cron period, in seconds
     #[serde_as(as = "DurationSeconds<u64>")]
     pub polling_interval: Duration,
@@ -133,6 +145,8 @@ pub struct TopDownSettings {
     /// Timeout for calls to the parent Ethereum API.
     #[serde_as(as = "Option<DurationSeconds<u64>>")]
     pub parent_http_timeout: Option<Duration>,
+    /// Bearer token for any Authorization header.
+    pub parent_http_auth_token: Option<String>,
     /// The parent registry address
     #[serde(deserialize_with = "deserialize_eth_address_from_str")]
     pub parent_registry: Address,
@@ -193,6 +207,14 @@ impl SnapshotSettings {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+pub struct MetricsSettings {
+    /// Enable the export of metrics over HTTP.
+    pub enabled: bool,
+    /// HTTP listen address where Prometheus metrics are hosted.
+    pub listen: SocketAddress,
+}
+
+#[derive(Debug, Deserialize, Clone)]
 pub struct Settings {
     /// Home directory configured on the CLI, to which all paths in settings can be set relative.
     home_dir: PathBuf,
@@ -210,11 +232,15 @@ pub struct Settings {
     /// Where to reach CometBFT for queries or broadcasting transactions.
     tendermint_rpc_url: Url,
 
+    /// Block height where we should gracefully stop the node
+    pub halt_height: i64,
+
     /// Secp256k1 private key used for signing transactions sent in the validator's name. Leave empty if not validating.
     pub validator_key: Option<SigningKey>,
 
     pub abci: AbciSettings,
     pub db: DbSettings,
+    pub metrics: MetricsSettings,
     pub snapshots: SnapshotSettings,
     pub eth: EthSettings,
     pub fvm: FvmSettings,
@@ -234,9 +260,15 @@ impl Settings {
 
     /// Load the default configuration from a directory,
     /// then potential overrides specific to the run mode,
-    /// then overrides from the local environment.
+    /// then overrides from the local environment,
+    /// finally parse it into the [Settings] type.
     pub fn new(config_dir: &Path, home_dir: &Path, run_mode: &str) -> Result<Self, ConfigError> {
-        let c = Config::builder()
+        Self::config(config_dir, home_dir, run_mode).and_then(Self::parse)
+    }
+
+    /// Load the configuration into a generic data structure.
+    fn config(config_dir: &Path, home_dir: &Path, run_mode: &str) -> Result<Config, ConfigError> {
+        Config::builder()
             .add_source(EnvInterpol(File::from(config_dir.join("default"))))
             // Optional mode specific overrides, checked into git.
             .add_source(EnvInterpol(
@@ -255,6 +287,7 @@ impl Settings {
                     .ignore_empty(true) // otherwise "" will be parsed as a list item
                     .try_parsing(true) // required for list separator
                     .list_separator(",") // need to list keys explicitly below otherwise it can't pase simple `String` type
+                    .with_list_parse_key("resolver.connection.external_addresses")
                     .with_list_parse_key("resolver.discovery.static_addresses")
                     .with_list_parse_key("resolver.membership.static_subnets"),
             ))
@@ -263,10 +296,13 @@ impl Settings {
             // The `home_dir` key is not added to `default.toml` so there is no confusion
             // about where it will be coming from.
             .set_override("home_dir", home_dir.to_string_lossy().as_ref())?
-            .build()?;
+            .build()
+    }
 
+    /// Try to parse the config into [Settings].
+    fn parse(config: Config) -> Result<Self, ConfigError> {
         // Deserialize (and thus freeze) the entire configuration.
-        c.try_deserialize()
+        config.try_deserialize()
     }
 
     /// The configured home directory.
@@ -306,7 +342,12 @@ mod tests {
     fn try_parse_config(run_mode: &str) -> Result<Settings, config::ConfigError> {
         let current_dir = PathBuf::from(".");
         let default_dir = PathBuf::from("../config");
-        Settings::new(&default_dir, &current_dir, run_mode)
+        let c = Settings::config(&default_dir, &current_dir, run_mode)?;
+        // Trying to debug the following sporadic error on CI:
+        // thread 'tests::parse_test_config' panicked at fendermint/app/settings/src/lib.rs:315:36:
+        // failed to parse Settings: failed to parse: invalid digit found in string
+        eprintln!("CONFIG = {:?}", c.cache);
+        Settings::parse(c)
     }
 
     fn parse_config(run_mode: &str) -> Settings {
@@ -336,12 +377,14 @@ mod tests {
         #[test]
         fn parse_comma_separated() {
             let settings = with_env_vars(vec![
-            ("FM_RESOLVER__DISCOVERY__STATIC_ADDRESSES", "/ip4/198.51.100.0/tcp/4242/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N,/ip6/2604:1380:2000:7a00::1/udp/4001/quic/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb"),
-            // Set a normal string key as well to make sure we have configured the library correctly and it doesn't try to parse everything as a list.
-            ("FM_RESOLVER__NETWORK__NETWORK_NAME", "test"),
-        ], || try_parse_config("")).unwrap();
+                ("FM_RESOLVER__CONNECTION__EXTERNAL_ADDRESSES", "/ip4/198.51.100.0/tcp/4242/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N,/ip6/2604:1380:2000:7a00::1/udp/4001/quic/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb"),
+                ("FM_RESOLVER__DISCOVERY__STATIC_ADDRESSES", "/ip4/198.51.100.1/tcp/4242/p2p/QmYyQSo1c1Ym7orWxLYvCrM2EmxFTANf8wXmmE7DWjhx5N,/ip6/2604:1380:2000:7a00::2/udp/4001/quic/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb"),
+                // Set a normal string key as well to make sure we have configured the library correctly and it doesn't try to parse everything as a list.
+                ("FM_RESOLVER__NETWORK__NETWORK_NAME", "test"),
+            ], || try_parse_config("")).unwrap();
 
             assert_eq!(settings.resolver.discovery.static_addresses.len(), 2);
+            assert_eq!(settings.resolver.connection.external_addresses.len(), 2);
         }
 
         #[test]
@@ -349,12 +392,14 @@ mod tests {
             let settings = with_env_vars(
                 vec![
                     ("FM_RESOLVER__DISCOVERY__STATIC_ADDRESSES", ""),
+                    ("FM_RESOLVER__CONNECTION__EXTERNAL_ADDRESSES", ""),
                     ("FM_RESOLVER__MEMBERSHIP__STATIC_SUBNETS", ""),
                 ],
                 || try_parse_config(""),
             )
             .unwrap();
 
+            assert_eq!(settings.resolver.connection.external_addresses.len(), 0);
             assert_eq!(settings.resolver.discovery.static_addresses.len(), 0);
             assert_eq!(settings.resolver.membership.static_subnets.len(), 0);
         }

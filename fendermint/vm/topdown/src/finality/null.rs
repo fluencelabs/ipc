@@ -6,10 +6,12 @@ use crate::finality::{
 };
 use crate::{BlockHash, BlockHeight, Config, Error, IPCParentFinality, SequentialKeyCache};
 use async_stm::{abort, atomically, Stm, StmResult, TVar};
-use fendermint_vm_event::{emit, EventType};
 use ipc_api::cross::IpcEnvelope;
 use ipc_api::staking::StakingChangeRequest;
 use std::cmp::min;
+
+use fendermint_tracing::emit;
+use fendermint_vm_event::ParentFinalityCommitted;
 
 /// Finality provider that can handle null blocks
 #[derive(Clone)]
@@ -96,6 +98,10 @@ impl FinalityWithNull {
 
     pub fn check_proposal(&self, proposal: &IPCParentFinality) -> Stm<bool> {
         if !self.check_height(proposal)? {
+            tracing::debug!(
+                proposal = proposal.to_string(),
+                "proposal height is not valid"
+            );
             return Ok(false);
         }
         self.check_block_hash(proposal)
@@ -122,11 +128,10 @@ impl FinalityWithNull {
         self.last_committed_finality.write(Some(finality))?;
 
         // emit event only after successful write
-        emit!(
-            EventType::ParentFinalityCommitted,
-            height,
-            block_hash = hash
-        );
+        emit!(ParentFinalityCommitted {
+            block_height: height,
+            block_hash: &hash
+        });
 
         Ok(())
     }
@@ -318,6 +323,10 @@ impl FinalityWithNull {
         let last_committed_finality = if let Some(f) = binding.as_ref() {
             f
         } else {
+            tracing::debug!(
+                proposal = proposal.to_string(),
+                "last committed finality is not ready, reject"
+            );
             return Ok(false);
         };
 
@@ -333,13 +342,21 @@ impl FinalityWithNull {
 
         if let Some(latest_height) = self.latest_height_in_cache()? {
             let r = latest_height >= proposal.height;
-            tracing::debug!(is_true = r, "incoming proposal height seen?");
+            tracing::debug!(
+                is_true = r,
+                latest_height,
+                proposal = proposal.height.to_string(),
+                "incoming proposal height seen?"
+            );
             // requires the incoming height cannot be more advanced than our trusted parent node
             Ok(r)
         } else {
             // latest height is not found, meaning we dont have any prefetched cache, we just be
             // strict and vote no simply because we don't know.
-            tracing::debug!("reject proposal, no data in cache");
+            tracing::debug!(
+                proposal = proposal.height.to_string(),
+                "reject proposal, no data in cache"
+            );
             Ok(false)
         }
     }
