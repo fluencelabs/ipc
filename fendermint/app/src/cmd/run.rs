@@ -11,7 +11,6 @@ use fendermint_crypto::SecretKey;
 use fendermint_rocksdb::{blockstore::NamespaceBlockstore, namespaces, RocksDb, RocksDbConfig};
 use fendermint_vm_actor_interface::eam::EthAddress;
 use fendermint_vm_interpreter::chain::ChainEnv;
-use fendermint_vm_interpreter::fvm::upgrades::UpgradeScheduler;
 use fendermint_vm_interpreter::{
     bytes::{BytesMessageInterpreter, ProposalPrepareMode},
     chain::{ChainMessageInterpreter, CheckpointPool},
@@ -35,6 +34,7 @@ use tokio::sync::broadcast::error::RecvError;
 use tracing::info;
 
 use crate::cmd::key::read_secret_key;
+use crate::cmd::upgrades;
 use crate::{cmd, options::run::RunArgs, settings::Settings};
 
 cmd! {
@@ -119,6 +119,7 @@ async fn run(settings: Settings) -> anyhow::Result<()> {
         ValidatorContext::new(sk, broadcaster)
     });
 
+    let upgrade_scheduler = upgrades::create_upgrade_scheduler()?;
     let interpreter = FvmMessageInterpreter::<NamespaceBlockstore, _>::new(
         tendermint_client.clone(),
         validator_ctx,
@@ -126,7 +127,7 @@ async fn run(settings: Settings) -> anyhow::Result<()> {
         settings.fvm.gas_overestimation_rate,
         settings.fvm.gas_search_step,
         settings.fvm.exec_in_check,
-        UpgradeScheduler::new(),
+        upgrade_scheduler,
     );
     let interpreter = SignedMessageInterpreter::new(interpreter);
     let interpreter = ChainMessageInterpreter::<_, NamespaceBlockstore>::new(interpreter);
@@ -225,8 +226,9 @@ async fn run(settings: Settings) -> anyhow::Result<()> {
             topdown_config.exponential_back_off,
             topdown_config.exponential_retry_limit,
         )
-            .with_proposal_delay(topdown_config.proposal_delay)
-            .with_max_proposal_range(topdown_config.max_proposal_range);
+
+        .with_proposal_delay(topdown_config.proposal_delay)
+        .with_max_proposal_range(topdown_config.max_proposal_range);
 
         if let Some(v) = topdown_config.max_cache_blocks {
             info!(value = v, "setting max cache blocks");
