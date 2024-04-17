@@ -45,7 +45,7 @@ pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
             // blockNumber       3835777
 
             let topdown_height = ethers::types::U256::from(3835777u64);
-            let topdown_hash_hex = "0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5";
+            let topdown_hash_hex = "57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5";
 
             let topdown_hash: [u8; 32] = hex::decode(topdown_hash_hex)?
                 .try_into()
