@@ -29,6 +29,7 @@ ipc_actors_abis = { workspace = true }
 
 ipc-api = { workspace = true }
 
+ambassador = { workspace = true }
 async-trait = { workspace = true }
 async-stm = { workspace = true }
 anyhow = { workspace = true }
@@ -57,6 +58,9 @@ tokio = { workspace = true }
 pin-project = { workspace = true }
 tokio-stream = { workspace = true }
 tokio-util = { workspace = true }
+
+fendermint_actor_fluence = { path = "../../actors/fluence" }
+fluence-fendermint-syscall = { workspace = true }
 
 arbitrary = { workspace = true, optional = true }
 quickcheck = { workspace = true, optional = true }

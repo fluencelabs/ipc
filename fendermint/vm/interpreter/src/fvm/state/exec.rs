@@ -12,7 +12,6 @@ use fvm::{
     executor::{ApplyFailure, ApplyKind, ApplyRet, DefaultExecutor, Executor},
     machine::{DefaultMachine, Machine, Manifest, NetworkConfig},
     state_tree::StateTree,
-    DefaultKernel,
 };
 use fvm_ipld_blockstore::Blockstore;
 use fvm_ipld_encoding::RawBytes;
@@ -24,6 +23,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::fvm::externs::FendermintExterns;
+use crate::fvm::state::fluence_kernel::FluenceKernelImpl;
 use fendermint_vm_core::{chainid::HasChainID, Timestamp};
 use fendermint_vm_encoding::IsHumanReadable;
 
@@ -94,7 +94,7 @@ where
 {
     #[allow(clippy::type_complexity)]
     executor: DefaultExecutor<
-        DefaultKernel<DefaultCallManager<DefaultMachine<DB, FendermintExterns<DB>>>>,
+        FluenceKernelImpl<DefaultCallManager<DefaultMachine<DB, FendermintExterns<DB>>>>,
     >,
 
     /// Hash of the block currently being executed. For queries and checks this is empty.

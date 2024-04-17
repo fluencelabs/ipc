@@ -15,7 +15,7 @@ use fendermint_vm_actor_interface::diamond::{EthContract, EthContractMap};
 use fendermint_vm_actor_interface::eam::EthAddress;
 use fendermint_vm_actor_interface::ipc::IPC_CONTRACTS;
 use fendermint_vm_actor_interface::{
-    account, burntfunds, chainmetadata, cron, eam, init, ipc, reward, system, EMPTY_ARR,
+    account, burntfunds, chainmetadata, cron, eam, fluence, init, ipc, reward, system, EMPTY_ARR,
 };
 use fendermint_vm_core::{chainid, Timestamp};
 use fendermint_vm_genesis::{ActorMeta, Genesis, Power, PowerScale, Validator};
@@ -261,6 +261,17 @@ where
                 None,
             )
             .context("failed to replace built in eam actor")?;
+
+        // Fluence actor
+        state
+            .create_custom_actor(
+                fendermint_actor_fluence::FLUENCE_ACTOR_NAME,
+                fluence::FLUENCE_ACTOR_ID,
+                &EMPTY_ARR,
+                TokenAmount::zero(),
+                None,
+            )
+            .context("failed to create Fluence actor")?;
 
         // STAGE 2: Create non-builtin accounts which do not have a fixed ID.
 

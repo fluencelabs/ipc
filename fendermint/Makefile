@@ -95,7 +95,8 @@ docker-build: docker-deps $(FENDERMINT_CODE)
 		docker build \
 			$(BUILDX_STORE) \
 			-f docker/Dockerfile \
-			-t fendermint:latest $(PWD)/..; \
+			--network=host \
+			-t $(BUILD_TAG) $(PWD)/..; \
 	fi
 
 

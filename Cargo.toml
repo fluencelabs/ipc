@@ -30,6 +30,7 @@ members = [
   "fendermint/vm/*",
   "fendermint/actors",
   "fendermint/actors/chainmetadata",
+  "fendermint/actors/fluence",
 ]
 
 [workspace.package]
@@ -44,6 +45,7 @@ license-file = "LICENSE-APACHE"
 
 [workspace.dependencies]
 anyhow = "1"
+ambassador = "0.3.5"
 arbitrary = { version = "1", features = ["derive"] }
 arbtest = "0.2"
 async-recursion = "1"
@@ -222,6 +224,10 @@ tendermint-rpc = { version = "0.31", features = [
   "websocket-client",
 ] }
 tendermint-proto = { version = "0.31" }
+
+# Fluence
+fluence-actor-sdk = { version = "0.1.2" }
+fluence-fendermint-syscall = { version = "0.1.5" }
 
 [patch.crates-io]
 # Use stable-only features.
