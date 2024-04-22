@@ -317,7 +317,7 @@ where
                         // the execution of all side-effects up till `N-1`, as for
                         // deferred execution chains, this is the latest state that
                         // we know for sure that we have available.
-                        (prev_height, finality.height + 1)
+                        (prev_height, finality.height - 1)
                     };
 
                     // error happens if we cannot get the validator set from ipc agent after retries
