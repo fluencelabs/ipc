@@ -45,6 +45,14 @@ for i in $(seq 0 $(($TESTNET_NODES_NUMBER - 1))); do
 	export CMT_NODE_ADDR=192.167.10.$((${i}*3 + 2))
 	export FMT_NODE_ADDR=192.167.10.$((${i}*3 + 3))
 	export ETHAPI_NODE_ADDR=192.167.10.$((${i}*3 + 4))
+
+  unset cpus
+	for n in {0..2}; do
+		lower=$((20 + n + 2*i))
+		higher=$((84 + n + 2*i))
+		cpus+="$lower,$higher,"
+    done
+	export CPUSET=${cpus%,}
 	docker compose -f ./docker-compose.yml -p testnet_node_${i} $ACTION &
 	PORT1=$((PORT1+3))
 	PORT2=$((PORT2+3))
