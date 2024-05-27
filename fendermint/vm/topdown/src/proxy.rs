@@ -105,16 +105,21 @@ impl ParentQueryProxy for IPCProviderProxy {
         &self,
         height: BlockHeight,
     ) -> anyhow::Result<TopDownQueryPayload<Vec<StakingChangeRequest>>> {
-        if (3939207..=3939226).contains(&height) {
-            // badge of honour: handling the RPC error in the parent node. Only one node is 
-            // seeing the correct, non empty data, while the rest of the nodes are seeing 
-            // empty array for the above block range. Forcing every node to return empty 
-            // array so that every single node sees the same validator changes. Missing 
-            // validator changes will be patched as a follow up upgrade.
-            return Ok(TopDownQueryPayload {
-                value: vec![],
-                block_hash: self.get_block_hash(height).await?.block_hash,
-            });
+        if 3939209 == height {
+            let block_hash = self.get_block_hash(height).await?.block_hash;
+            if block_hash
+                == hex::decode("d480bf10bf65096d0b161b61d2a6bf98fbc077e699411509592f452c6ddb45ac")?
+            {
+                // badge of honour: handling the RPC error in the parent node. Only one node is
+                // seeing the correct, non empty data, while the rest of the nodes are seeing
+                // empty array for the above block range. Forcing every node to return empty
+                // array so that every single node sees the same validator changes. Missing
+                // validator changes will be patched as a follow up upgrade.
+                return Ok(TopDownQueryPayload {
+                    value: vec![],
+                    block_hash,
+                });
+            }
         }
         self.ipc_provider
             .get_validator_changeset(&self.child_subnet, height as ChainEpoch)
