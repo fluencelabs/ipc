@@ -21,10 +21,12 @@ pub fn create_upgrade_scheduler<DB: Blockstore + 'static + Clone>(
     };
     upgrade01::store_missing_validator_changes(&mut upgrade_scheduler, target_height)?;
 
-    // // upgrade ownership, optional
-    // // TODO: update target height
-    // let target_height = 60;
-    // upgrade02::transfer_ownership(&mut upgrade_scheduler, target_height)?;
+    // applied missing validator changes
+    let target_height = {
+        let h = env::var("FLUENCE_UPGRADE_02_HEIGHT").unwrap_or(String::from("TODO"));
+        h.parse().expect("unable to parse upgrade 2 height")
+    };
+    upgrade02::store_missing_validator_changes(&mut upgrade_scheduler, target_height)?;
 
     Ok(upgrade_scheduler)
 }

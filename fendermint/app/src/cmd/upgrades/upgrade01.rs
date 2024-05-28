@@ -18,7 +18,7 @@ use std::str::FromStr;
 use tracing::info;
 
 /// The topic id for the configuration change request. It's derived from keccak('NewStakingChangeRequest(uint8,address,bytes,uint64)').
-const CONFIGURATION_CHANGE_TOPIC: &str =
+pub(crate) const CONFIGURATION_CHANGE_TOPIC: &str =
     "1c593a2b803c3f9038e8b6743ba79fbc4276d2770979a01d2768ed12bea3243f";
 
 pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
