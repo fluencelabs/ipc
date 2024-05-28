@@ -1,6 +1,7 @@
 // Copyright 2022-2024 Protocol Labs
 // SPDX-License-Identifier: Apache-2.0, MIT
 
+use crate::cmd::upgrades::upgrade01::parse_logs;
 use crate::cmd::upgrades::CHAIN_ID;
 use fendermint_vm_actor_interface::eam::EthAddress;
 use fendermint_vm_interpreter::fvm::state::fevm::ContractCaller;
@@ -8,12 +9,10 @@ use fendermint_vm_interpreter::fvm::upgrades::{Upgrade, UpgradeScheduler};
 use fvm_ipld_blockstore::Blockstore;
 use ipc_actors_abis::lib_staking_change_log::NewStakingChangeRequestFilter;
 use ipc_actors_abis::top_down_finality_facet::{
-    StakingChange, StakingChangeRequest, TopDownFinalityFacet,
-    TopDownFinalityFacetErrors,
+    StakingChange, StakingChangeRequest, TopDownFinalityFacet, TopDownFinalityFacetErrors,
 };
 use std::str::FromStr;
 use tracing::info;
-use crate::cmd::upgrades::upgrade01::parse_logs;
 
 pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
     upgrade_scheduler: &mut UpgradeScheduler<DB>,
