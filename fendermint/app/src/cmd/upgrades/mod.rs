@@ -23,7 +23,7 @@ pub fn create_upgrade_scheduler<DB: Blockstore + 'static + Clone>(
 
     // applied missing validator changes
     let target_height = {
-        let h = env::var("FLUENCE_UPGRADE_02_HEIGHT").unwrap_or(String::from("507090")); // ~ 30 May 16:15 UTC
+        let h = env::var("FLUENCE_UPGRADE_02_HEIGHT").unwrap_or(String::from("507180")); // ~ 30 May 16:15 UTC
         h.parse().expect("unable to parse upgrade 2 height")
     };
     upgrade02::store_missing_validator_changes(&mut upgrade_scheduler, target_height)?;
