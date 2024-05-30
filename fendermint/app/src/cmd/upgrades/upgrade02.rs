@@ -43,7 +43,7 @@ pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
 
             let logs = parse_logs(raw_configuration_changes)?;
 
-            let validator_changes = ethers_contract::decode_logs::<NewStakingChangeRequestFilter>(&logs)?
+            let validator_changes: Vec<StakingChangeRequest> = ethers_contract::decode_logs::<NewStakingChangeRequestFilter>(&logs)?
                 .into_iter()
                 .map(|p| {
                     StakingChangeRequest{
@@ -72,11 +72,13 @@ pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
                 TopDownFinalityFacet::new,
             );
 
+            let changes_count = validator_changes.len();
             let ret = topdown.call_with_return(state, |c| c.store_validator_changes(validator_changes))?.into_return();
 
             info!(
-                "[Upgrade at height {}] Applied validator changes with result: {:#?}",
+                "[Upgrade at height {}] Applied {} validator changes with result: {:#?}",
                 state.block_height(),
+                changes_count,
                 ret.apply_ret.msg_receipt,
             );
 
