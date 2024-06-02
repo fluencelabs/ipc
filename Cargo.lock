@@ -3776,7 +3776,7 @@ dependencies = [
 [[package]]
 name = "fluence-actor-sdk"
 version = "0.1.2"
-source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=batching-api-change#6da0cf7c0eeb7f88ec42097f644e45571bb23b33"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=batching-api-cache#67a61d25913a11a2e66a4bfca214268187c97b3e"
 dependencies = [
  "fluence-fendermint-shared",
  "fvm_ipld_encoding",
@@ -3788,12 +3788,12 @@ dependencies = [
 [[package]]
 name = "fluence-fendermint-shared"
 version = "0.1.1"
-source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=batching-api-change#6da0cf7c0eeb7f88ec42097f644e45571bb23b33"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=batching-api-cache#67a61d25913a11a2e66a4bfca214268187c97b3e"
 
 [[package]]
 name = "fluence-fendermint-syscall"
 version = "0.1.5"
-source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=batching-api-change#6da0cf7c0eeb7f88ec42097f644e45571bb23b33"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=batching-api-cache#67a61d25913a11a2e66a4bfca214268187c97b3e"
 dependencies = [
  "ccp-randomx",
  "ccp-shared",
