@@ -229,8 +229,8 @@ tendermint-proto = { version = "0.31" }
 #fluence-actor-sdk = { version = "0.1.2" }
 #fluence-fendermint-syscall = { version = "0.1.5" }
 
-fluence-actor-sdk = { git = "https://github.com/fluencelabs/fluence-fendermint", branch = "batching-api-cache" }
-fluence-fendermint-syscall = { git = "https://github.com/fluencelabs/fluence-fendermint", branch = "batching-api-cache" }
+fluence-actor-sdk = { git = "https://github.com/fluencelabs/fluence-fendermint", branch = "misc/add-logs" }
+fluence-fendermint-syscall = { git = "https://github.com/fluencelabs/fluence-fendermint", branch = "misc/add-logs" }
 
 [patch.crates-io]
 # Use stable-only features.
