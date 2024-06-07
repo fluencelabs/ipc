@@ -3776,7 +3776,7 @@ dependencies = [
 [[package]]
 name = "fluence-actor-sdk"
 version = "0.1.2"
-source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=misc/add-logs#e99ae3b1d338a83de90bf4707f32a46317c7f2f7"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=misc/add-logs#41e4505ad9cce49bf3949666ac3a6e8150d517eb"
 dependencies = [
  "fluence-fendermint-shared",
  "fvm_ipld_encoding",
@@ -3788,12 +3788,12 @@ dependencies = [
 [[package]]
 name = "fluence-fendermint-shared"
 version = "0.1.1"
-source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=misc/add-logs#e99ae3b1d338a83de90bf4707f32a46317c7f2f7"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=misc/add-logs#41e4505ad9cce49bf3949666ac3a6e8150d517eb"
 
 [[package]]
 name = "fluence-fendermint-syscall"
 version = "0.1.5"
-source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=misc/add-logs#e99ae3b1d338a83de90bf4707f32a46317c7f2f7"
+source = "git+https://github.com/fluencelabs/fluence-fendermint?branch=misc/add-logs#41e4505ad9cce49bf3949666ac3a6e8150d517eb"
 dependencies = [
  "ccp-randomx",
  "ccp-shared",
