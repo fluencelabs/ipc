@@ -96,8 +96,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             .join("wasm32-unknown-unknown/wasm")
             .join(format!("fendermint_actor_{}.wasm", pkg));
 
-        println!("cargo:warning=get file from {bytecode_path:?}");
-
         // This actor version doesn't force synthetic CIDs; it uses genuine
         // content-addressed CIDs.
         let forced_cid = None;
