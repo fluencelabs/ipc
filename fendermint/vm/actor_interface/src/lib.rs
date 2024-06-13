@@ -51,6 +51,7 @@ pub mod eam;
 pub mod ethaccount;
 pub mod evm;
 pub mod fluence;
+pub mod fluence_batched;
 pub mod init;
 pub mod ipc;
 pub mod multisig;

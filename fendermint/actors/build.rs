@@ -8,7 +8,10 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 use std::thread;
 
-const ACTORS: &[&str] = &["chainmetadata", "eam", "fluence"];
+// fluence-batched is loaded on Kras through the special upgrade mechanism not from genesis
+// but it's still included into this list to make experiments on newly created IPC networks
+// more transparent.
+const ACTORS: &[&str] = &["chainmetadata", "eam", "fluence", "fluence_batched"];
 
 const FILES_TO_WATCH: &[&str] = &["Cargo.toml", "src"];
 
@@ -92,6 +95,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let bytecode_path = Path::new(&out_dir)
             .join("wasm32-unknown-unknown/wasm")
             .join(format!("fendermint_actor_{}.wasm", pkg));
+
+        println!("cargo:warning=get file from {bytecode_path:?}");
 
         // This actor version doesn't force synthetic CIDs; it uses genuine
         // content-addressed CIDs.
