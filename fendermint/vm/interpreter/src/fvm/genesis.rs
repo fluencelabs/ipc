@@ -271,7 +271,7 @@ where
             )
             .context("failed to create Fluence actor")?;
 
-        // Fluence actor
+        // Fluence batched actor
         state
             .create_custom_actor(
                 fendermint_actor_fluence_batched::FLUENCE_BATCHED_ACTOR_NAME,

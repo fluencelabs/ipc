@@ -77,6 +77,7 @@ ethers-contract = { workspace = true }
 
 fendermint_actor_fluence_batched = { path = "../actors/fluence_batched" }
 multihash = { workspace = true, features = ["blake2b", "multihash-impl"] }
+log = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
