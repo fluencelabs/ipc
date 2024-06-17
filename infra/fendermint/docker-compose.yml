@@ -1,5 +1,6 @@
 services:
   fendermint-node:
+    cpuset: ${CPUSET}
     container_name: fendermint-node${NODE_ID}
     user: ${UID}:${GID}
     image: ${FM_DOCKER_IMAGE}
@@ -16,6 +17,7 @@ services:
         ipv4_address: ${FMT_NODE_ADDR}
 
   cometbft-node:
+    cpuset: ${CPUSET}
     container_name: cometbft-node${NODE_ID}
     user: ${UID}:${GID}
     image: ${CMT_DOCKER_IMAGE}
@@ -40,6 +42,7 @@ services:
         ipv4_address: ${CMT_NODE_ADDR}
 
   ethapi-node:
+    cpuset: ${CPUSET}
     container_name: ethapi-node${NODE_ID}
     user: ${UID}:${GID}
     image: ${FM_DOCKER_IMAGE}
