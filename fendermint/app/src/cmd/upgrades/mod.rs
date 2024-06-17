@@ -43,8 +43,8 @@ pub fn create_upgrade_scheduler<DB: Blockstore + 'static + Clone>(
 fn stage_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, MigrationFunc<DB>)> {
     vec![
         // Deploy Batched Fluence Actor
-        // 100137 = 17 Jun 9:00 AM UTC => 101000 = ~11:23 AM UTC
-        (101_000, upgrade03::deploy_fluence_batched_actor),
+        // 101082 = 11:40 AM UTC => 101082 = ~11:56 AM UTC
+        (101177, upgrade03::deploy_fluence_batched_actor),
     ]
 }
 
@@ -74,6 +74,7 @@ fn schedule_upgrades<DB: Blockstore + 'static + Clone>(
 ) -> anyhow::Result<()> {
     let chain_id: ChainID = chain_id.into();
     for (height, upgrade) in upgrades {
+        log::info!("Scheduling an upgrade for {chain_name} ({chain_id}) on height {height}");
         scheduler
             .add(Upgrade::new_by_id(chain_id, height, None, upgrade))
             .context(format!("upgrade for {chain_name} on height {height}"))?
