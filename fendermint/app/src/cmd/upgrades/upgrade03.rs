@@ -4,8 +4,6 @@ use num_traits::Zero;
 use fendermint_vm_actor_interface::fluence_batched::FLUENCE_BATCHED_ACTOR_ID;
 use fendermint_vm_actor_interface::EMPTY_ARR;
 use fendermint_vm_interpreter::fvm::state::FvmExecState;
-use fendermint_vm_interpreter::fvm::upgrades::Upgrade;
-use fendermint_vm_interpreter::fvm::upgrades::UpgradeScheduler;
 
 use fvm_ipld_blockstore::Block;
 use fvm_ipld_blockstore::Blockstore;
@@ -14,24 +12,10 @@ use fvm_shared::econ::TokenAmount;
 use fvm_shared::state::ActorState;
 use fvm_shared::IPLD_RAW;
 
-use crate::cmd::upgrades::CHAIN_ID;
-
 static FLUENCE_BATCHED_WASM_BIN: &[u8] =
     include_bytes!("./upgrade03/fendermint_actor_fluence_batched.wasm");
 
-pub(crate) fn upgrade_actor<DB: Blockstore + 'static + Clone>(
-    upgrade_scheduler: &mut UpgradeScheduler<DB>,
-    block_height: u64,
-) -> anyhow::Result<()> {
-    upgrade_scheduler.add(Upgrade::new_by_id(
-        CHAIN_ID.into(),
-        block_height,
-        None,
-        |state| upgrade_wasm_actor_func(state),
-    ))
-}
-
-fn upgrade_wasm_actor_func<DB: Blockstore + 'static + Clone>(
+pub fn deploy_fluence_batched_actor<DB: Blockstore + 'static + Clone>(
     state: &mut FvmExecState<DB>,
 ) -> anyhow::Result<()> {
     let state_tree = state.state_tree_mut();
