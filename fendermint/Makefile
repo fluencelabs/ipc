@@ -82,22 +82,11 @@ docker-deps: $(BUILTIN_ACTORS_BUNDLE) $(CUSTOM_ACTORS_BUNDLE) $(IPC_ACTORS_GEN)
 # After that it looks like even the regular docker build needs the `--load` parameter, which hopefully
 # it can handle for anyone with `DOCKER_BUILDKIT=1`.
 docker-build: docker-deps $(FENDERMINT_CODE)
-	if [ "$(PROFILE)" = "ci" ]; then \
 		cat docker/builder.ci.Dockerfile docker/runner.Dockerfile > docker/Dockerfile ; \
 		docker buildx build \
-			$(BUILDX_STORE) \
-			$(BUILDX_FLAGS) \
 			-f docker/Dockerfile \
-			-t $(BUILDX_TAG) $(PWD)/..; \
-	else \
-		cat docker/builder.local.Dockerfile docker/runner.Dockerfile > docker/Dockerfile ; \
-		DOCKER_BUILDKIT=1 \
-		docker build \
-			$(BUILDX_STORE) \
-			-f docker/Dockerfile \
-			--network=host \
-			-t $(BUILD_TAG) $(PWD)/..; \
-	fi
+			--platform linux/arm64,linux/amd64 --no-cache --push \
+			-t fluencelabs/fendermint:fluence-batching-actor $(PWD)/..; 
 
 
 # Build a bundle CAR; this is so we don't have to have a project reference,
