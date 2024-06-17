@@ -8,7 +8,7 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 use std::thread;
 
-// fluence-batched is loaded on Kras through the special upgrade mechanism not from genesis
+// fluence-batched is loaded on Kras and Dar through the upgrade mechanism not from genesis
 // but it's still included into this list to make experiments on newly created IPC networks
 // more transparent.
 const ACTORS: &[&str] = &["chainmetadata", "eam", "fluence", "fluence_batched"];
