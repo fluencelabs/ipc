@@ -43,7 +43,7 @@ pub fn create_upgrade_scheduler<DB: Blockstore + 'static + Clone>(
 fn stage_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, MigrationFunc<DB>)> {
     vec![
         // Deploy Batched Fluence Actor
-        // 101082 = 11:40 AM UTC => 101082 = ~11:56 AM UTC
+        // 101082 = 11:40 AM UTC => 101177 = ~11:56 AM UTC
         (101177, upgrade03::deploy_fluence_batched_actor),
     ]
 }
