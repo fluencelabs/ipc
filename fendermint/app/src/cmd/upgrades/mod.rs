@@ -5,6 +5,7 @@ use anyhow::Context;
 use fvm_ipld_blockstore::Blockstore;
 use fvm_shared::chainid::ChainID;
 
+use crate::cmd::upgrades::FluenceChainId::{Kras, Stage, DAR};
 use fendermint_vm_interpreter::fvm::state::snapshot::BlockHeight;
 use fendermint_vm_interpreter::fvm::upgrades::{MigrationFunc, Upgrade, UpgradeScheduler};
 
@@ -32,38 +33,9 @@ pub fn create_upgrade_scheduler<DB: Blockstore + 'static + Clone>(
 ) -> anyhow::Result<UpgradeScheduler<DB>> {
     let mut upgrade_scheduler = UpgradeScheduler::new();
 
-    for (height, upgrade) in stage_upgrades() {
-        upgrade_scheduler
-            .add(Upgrade::new_by_id(
-                FluenceChainId::Stage.into(),
-                height,
-                None,
-                upgrade,
-            ))
-            .context(format!("upgrade for stage on height {height}"))?
-    }
-
-    for (height, upgrade) in dar_upgrades() {
-        upgrade_scheduler
-            .add(Upgrade::new_by_id(
-                FluenceChainId::DAR.into(),
-                height,
-                None,
-                upgrade,
-            ))
-            .context(format!("upgrade for dar on height {height}"))??
-    }
-
-    for (height, upgrade) in kras_upgrades() {
-        upgrade_scheduler
-            .add(Upgrade::new_by_id(
-                FluenceChainId::Kras.into(),
-                height,
-                None,
-                upgrade,
-            ))
-            .context(format!("upgrade for kras on height {height}"))??
-    }
+    schedule_upgrades(stage_upgrades(), Stage, "stage", &mut upgrade_scheduler)?;
+    schedule_upgrades(dar_upgrades(), DAR, "DAR", &mut upgrade_scheduler)?;
+    schedule_upgrades(kras_upgrades(), Kras, "Kras", &mut upgrade_scheduler)?;
 
     Ok(upgrade_scheduler)
 }
@@ -92,4 +64,19 @@ fn kras_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, Migrat
         (507180, upgrade02::store_missing_validator_changes),
         // (999999, upgrade03::deploy_fluence_batched_actor)
     ]
+}
+
+fn schedule_upgrades<DB: Blockstore + 'static + Clone>(
+    upgrades: Vec<(BlockHeight, MigrationFunc<DB>)>,
+    chain_id: FluenceChainId,
+    chain_name: &'static str,
+    scheduler: &mut UpgradeScheduler<DB>,
+) -> anyhow::Result<()> {
+    let chain_id: ChainID = chain_id.into();
+    for (height, upgrade) in upgrades {
+        scheduler
+            .add(Upgrade::new_by_id(chain_id, height, None, upgrade))
+            .context(format!("upgrade for {chain_name} on height {height}"))?
+    }
+    Ok(())
 }
