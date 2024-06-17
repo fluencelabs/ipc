@@ -74,7 +74,7 @@ fn schedule_upgrades<DB: Blockstore + 'static + Clone>(
 ) -> anyhow::Result<()> {
     let chain_id: ChainID = chain_id.into();
     for (height, upgrade) in upgrades {
-        log::info!("Scheduling an upgrade for {chain_name} ({chain_id}) on height {height}");
+        log::info!("Scheduling an upgrade for {chain_name} on height {height}");
         scheduler
             .add(Upgrade::new_by_id(chain_id, height, None, upgrade))
             .context(format!("upgrade for {chain_name} on height {height}"))?
