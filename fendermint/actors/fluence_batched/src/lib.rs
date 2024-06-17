@@ -38,7 +38,7 @@ impl FluenceActorBatched {
         log::info!("actor::run_randomx: start {params:?}");
         rt.validate_immediate_caller_accept_any()?;
 
-        let result = fluence_actor_sdk::run_randomx(&params.global_nonce, &params.local_nonce)
+        let result = fluence_actor_sdk::run_randomx(params.global_nonce, params.local_nonce)
             .map_err(randomx_failed)?;
         log::info!("actor::run_randomx: result is {result:?}");
 
