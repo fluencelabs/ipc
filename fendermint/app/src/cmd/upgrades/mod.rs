@@ -3,8 +3,10 @@
 
 use anyhow::Context;
 use fvm_ipld_blockstore::Blockstore;
+use fvm_shared::chainid::ChainID;
 
-use fendermint_vm_interpreter::fvm::upgrades::{Upgrade, UpgradeScheduler};
+use fendermint_vm_interpreter::fvm::state::snapshot::BlockHeight;
+use fendermint_vm_interpreter::fvm::upgrades::{MigrationFunc, Upgrade, UpgradeScheduler};
 
 mod upgrade01;
 mod upgrade02;
@@ -20,70 +22,74 @@ pub enum FluenceChainId {
     Kras = 1622562509754216,
 }
 
+impl From<FluenceChainId> for ChainID {
+    fn from(value: FluenceChainId) -> Self {
+        (value as u64).into()
+    }
+}
+
 pub fn create_upgrade_scheduler<DB: Blockstore + 'static + Clone>(
 ) -> anyhow::Result<UpgradeScheduler<DB>> {
     let mut upgrade_scheduler = UpgradeScheduler::new();
 
-    // Apply missing validator changes on Kras
-    let kras_upgrade_01_height = 219500;
-    let kras_upgrade_01 = Upgrade::new_by_id(
-        (FluenceChainId::Kras as u64).into(),
-        kras_upgrade_01_height,
-        None, // do not change app_version this time
-        upgrade01::store_missing_validator_changes,
-    );
-    upgrade_scheduler.add(kras_upgrade_01).context(format!(
-        "upgrade01: store missing validator changes on Kras block {kras_upgrade_01_height}"
-    ))?;
+    for (height, upgrade) in stage_upgrades() {
+        upgrade_scheduler
+            .add(Upgrade::new_by_id(
+                FluenceChainId::Stage.into(),
+                height,
+                None,
+                upgrade,
+            ))
+            .context(format!("upgrade for stage on height {height}"))?
+    }
 
-    // Apply missing validator changes on Kras
-    let kras_upgrade_02_height = 507180;
-    let kras_upgrade_02 = Upgrade::new_by_id(
-        (FluenceChainId::Kras as u64).into(),
-        kras_upgrade_02_height,
-        None, // do not change app_version this time
-        upgrade02::store_missing_validator_changes,
-    );
-    upgrade_scheduler.add(kras_upgrade_02).context(format!(
-        "upgrade02: store missing validator changes on Kras block {kras_upgrade_02_height}"
-    ))?;
+    for (height, upgrade) in dar_upgrades() {
+        upgrade_scheduler
+            .add(Upgrade::new_by_id(
+                FluenceChainId::DAR.into(),
+                height,
+                None,
+                upgrade,
+            ))
+            .context(format!("upgrade for dar on height {height}"))??
+    }
 
-    // Deploy Batched Fluence Actor
-    // ==== Stage
-    let upgrade_03_stage_height = 101_000; // 100137 = 17 Jun 9:00 AM UTC => 101000 = ~11:23 AM UTC
-    let stage_upgrade_03 = Upgrade::new_by_id(
-        (FluenceChainId::Stage as u64).into(),
-        upgrade_03_stage_height,
-        None, // do not change app_version this time
-        upgrade03::deploy_fluence_batched_actor,
-    );
-    upgrade_scheduler.add(stage_upgrade_03).context(format!(
-        "upgrade03: store missing validator changes on Stage block {upgrade_03_stage_height}"
-    ))?;
-
-    // ==== DAR
-    let upgrade_03_dar_height = 600_000; // 592068 = 17 Jun 9:00 AM UTC => 600_000 = ~18 Jun 9:00 AM UTC
-    let stage_upgrade_03 = Upgrade::new_by_id(
-        (FluenceChainId::DAR as u64).into(),
-        upgrade_03_dar_height,
-        None, // do not change app_version this time
-        upgrade03::deploy_fluence_batched_actor,
-    );
-    upgrade_scheduler.add(stage_upgrade_03).context(format!(
-        "upgrade03: store missing validator changes on Dar block {upgrade_03_dar_height}"
-    ))?;
-
-    // ==== Kras
-    // let upgrade_03_kras_height = 999999;
-    // let kras_upgrade_03 = Upgrade::new_by_id(
-    //     (FluenceChainId::Kras as u64).into(),
-    //     upgrade_03_kras_height,
-    //     None, // do not change app_version this time
-    //     upgrade03::deploy_fluence_batched_actor,
-    // );
-    // upgrade_scheduler.add(kras_upgrade_03).context(format!(
-    //     "upgrade03: store missing validator changes on Kras block {upgrade_03_kras_height}"
-    // ))?;
+    for (height, upgrade) in kras_upgrades() {
+        upgrade_scheduler
+            .add(Upgrade::new_by_id(
+                FluenceChainId::Kras.into(),
+                height,
+                None,
+                upgrade,
+            ))
+            .context(format!("upgrade for kras on height {height}"))??
+    }
 
     Ok(upgrade_scheduler)
+}
+
+fn stage_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, MigrationFunc<DB>)> {
+    vec![
+        // Deploy Batched Fluence Actor
+        // 100137 = 17 Jun 9:00 AM UTC => 101000 = ~11:23 AM UTC
+        (101_000, upgrade03::deploy_fluence_batched_actor),
+    ]
+}
+
+fn dar_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, MigrationFunc<DB>)> {
+    vec![
+        // Deploy Batched Fluence Actor
+        // 592068 = 17 Jun 9:00 AM UTC => 600_000 = ~18 Jun 9:00 AM UTC
+        (600_000, upgrade03::deploy_fluence_batched_actor),
+    ]
+}
+
+fn kras_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, MigrationFunc<DB>)> {
+    vec![
+        // Apply missing validator changes on Kras
+        (219500, upgrade01::store_missing_validator_changes),
+        // Apply missing validator changes on Kras
+        (507180, upgrade02::store_missing_validator_changes),
+        // (999999, upgrade03::deploy_fluence_batched_actor)
+    ]
 }
