@@ -31,6 +31,7 @@ members = [
   "fendermint/actors",
   "fendermint/actors/chainmetadata",
   "fendermint/actors/fluence",
+  "fendermint/actors/fluence_batched",
 ]
 
 [workspace.package]
@@ -226,8 +227,11 @@ tendermint-rpc = { version = "0.31", features = [
 tendermint-proto = { version = "0.31" }
 
 # Fluence
-fluence-actor-sdk = { version = "0.1.2" }
-fluence-fendermint-syscall = { version = "0.1.5" }
+#fluence-actor-sdk = { version = "0.1.2" }
+#fluence-fendermint-syscall = { version = "0.1.5" }
+
+fluence-actor-sdk = { git = "https://github.com/fluencelabs/fluence-fendermint", branch = "main" }
+fluence-fendermint-syscall = { git = "https://github.com/fluencelabs/fluence-fendermint", branch = "main" }
 
 [patch.crates-io]
 # Use stable-only features.
