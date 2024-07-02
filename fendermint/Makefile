@@ -86,7 +86,7 @@ docker-build: docker-deps $(FENDERMINT_CODE)
 		docker buildx build \
 			-f docker/Dockerfile \
 			--platform linux/arm64,linux/amd64 --no-cache --push \
-			-t fluencelabs/fendermint:stage $(PWD)/..; 
+			-t fluencelabs/fendermint:dar $(PWD)/..; 
 
 
 # Build a bundle CAR; this is so we don't have to have a project reference,
