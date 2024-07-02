@@ -60,6 +60,7 @@ tokio-stream = { workspace = true }
 tokio-util = { workspace = true }
 
 fendermint_actor_fluence = { path = "../../actors/fluence" }
+fendermint_actor_fluence_batched = { path = "../../actors/fluence_batched" }
 fluence-fendermint-syscall = { workspace = true }
 
 arbitrary = { workspace = true, optional = true }

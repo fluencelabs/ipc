@@ -1,64 +1,62 @@
 // Copyright 2022-2024 Protocol Labs
 // SPDX-License-Identifier: Apache-2.0, MIT
 
-use crate::cmd::upgrades::CHAIN_ID;
+use std::str::FromStr;
+
 use anyhow::anyhow;
 use ethers::abi::RawLog;
 use ethers::prelude::H256;
+use fvm_ipld_blockstore::Blockstore;
+use tracing::info;
+
 use fendermint_vm_actor_interface::eam::EthAddress;
 use fendermint_vm_interpreter::fvm::state::fevm::ContractCaller;
-use fendermint_vm_interpreter::fvm::upgrades::{Upgrade, UpgradeScheduler};
-use fvm_ipld_blockstore::Blockstore;
+use fendermint_vm_interpreter::fvm::state::FvmExecState;
 use ipc_actors_abis::lib_staking_change_log::NewStakingChangeRequestFilter;
 use ipc_actors_abis::top_down_finality_facet::{
     ParentFinality, StakingChange, StakingChangeRequest, TopDownFinalityFacet,
     TopDownFinalityFacetErrors,
 };
-use std::str::FromStr;
-use tracing::info;
 
 /// The topic id for the configuration change request. It's derived from keccak('NewStakingChangeRequest(uint8,address,bytes,uint64)').
 const CONFIGURATION_CHANGE_TOPIC: &str =
     "1c593a2b803c3f9038e8b6743ba79fbc4276d2770979a01d2768ed12bea3243f";
 
 pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
-    upgrade_scheduler: &mut UpgradeScheduler<DB>,
-    block_height: u64,
+    state: &mut FvmExecState<DB>,
 ) -> anyhow::Result<()> {
-    upgrade_scheduler
-        .add(Upgrade::new_by_id(CHAIN_ID.into(), block_height, None, |state| {
-            // Epoch mined: 3835777
-            // Block hash:
-            // Tx hash: 0xeca274fea3e9ff568ac4eecb992ac904904e7bc8fff791e9624f244b9aa7df50
-            // Link: https://filfox.info/en/message/bafy2bzaceaxpjhlpuebjgg3kxzr3h2wxmejc3gwn4bajdycvba3baw2eeysns?t=1
-            //
-            // ⟩ cast block 3835777 -f hash --rpc-url https://filfox.info/rpc/v1
-            // 0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5
-            //
-            // ⟩ cast block 3835777 -f hash --rpc-url [https://api.node.glif.io](https://api.node.glif.io/)
-            // 0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5
-            //
-            // % cast tx --rpc-url https://gerovit.filmine.dev
-            // /rpc/v1 0xeca274fea3e9ff568ac4eecb992ac904904e7bc8fff791e9624f244b9aa7df50
-            //
-            // blockHash         0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5
-            // blockNumber       3835777
+    // Epoch mined: 3835777
+    // Block hash:
+    // Tx hash: 0xeca274fea3e9ff568ac4eecb992ac904904e7bc8fff791e9624f244b9aa7df50
+    // Link: https://filfox.info/en/message/bafy2bzaceaxpjhlpuebjgg3kxzr3h2wxmejc3gwn4bajdycvba3baw2eeysns?t=1
+    //
+    // ⟩ cast block 3835777 -f hash --rpc-url https://filfox.info/rpc/v1
+    // 0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5
+    //
+    // ⟩ cast block 3835777 -f hash --rpc-url [https://api.node.glif.io](https://api.node.glif.io/)
+    // 0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5
+    //
+    // % cast tx --rpc-url https://gerovit.filmine.dev
+    // /rpc/v1 0xeca274fea3e9ff568ac4eecb992ac904904e7bc8fff791e9624f244b9aa7df50
+    //
+    // blockHash         0x57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5
+    // blockNumber       3835777
 
-            let topdown_height = ethers::types::U256::from(3835777u64);
-            let topdown_hash_hex = "57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5";
+    let topdown_height = ethers::types::U256::from(3835777u64);
+    let topdown_hash_hex = "57c10c3a97a4472960c3a9ede32b28678d9a4a4b9acca6566cec92f840b0fda5";
 
-            let topdown_hash: [u8; 32] = hex::decode(topdown_hash_hex)?
-                .try_into()
-                .map_err(|_| anyhow!("cannot convert vec to bytes32"))?;
+    let topdown_hash: [u8; 32] = hex::decode(topdown_hash_hex)?
+        .try_into()
+        .map_err(|_| anyhow!("cannot convert vec to bytes32"))?;
 
-            if hex::encode(topdown_hash) != topdown_hash_hex {
-                return Err(anyhow!("hash not equal"));
-            }
+    if hex::encode(topdown_hash) != topdown_hash_hex {
+        return Err(anyhow!("hash not equal"));
+    }
 
-            // these changes were obtained by querying the filfox events api using:
-            // https://filfox.info/api/v1/address/f410fqpww4v74jydq25jncdbletyqd42oxyeoapzaz4a/events?pageSize=100
-            // or one can query the events from https://github.com/consensus-shipyard/ipc/pull/871
-            let raw_configuration_changes = vec![
+    // these changes were obtained by querying the filfox events api using:
+    // https://filfox.info/api/v1/address/f410fqpww4v74jydq25jncdbletyqd42oxyeoapzaz4a/events?pageSize=100
+    // or one can query the events from https://github.com/consensus-shipyard/ipc/pull/871
+    let raw_configuration_changes = vec![
                 "0x00000000000000000000000000000000000000000000000000000000000000030000000000000000000000007e6bcac9b600394ea1c7c38ea72cc56f57374c870000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000041045197627a4a7f89458469255afb8711ab4c7bc4a76281376cb361c29bd0d9626758d47feadf43d77f843725cbad419e655d8689369c1ce59ccdaa67d47bd0ddf700000000000000000000000000000000000000000000000000000000000000",
                 "0x0000000000000000000000000000000000000000000000000000000000000003000000000000000000000000bf20b7664fefb791a1dbb9a9308e1573063113c60000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000001300000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000041046ed27e5db71c4e7ec3b4498ee06913a59183e5c87f169652c92e7cc042f629088ef949c488135055722b8237009e7a77f4337185cbc89a6be60c0a63cfc72a2e00000000000000000000000000000000000000000000000000000000000000",
                 "0x00000000000000000000000000000000000000000000000000000000000000030000000000000000000000000a35741418da8238c8ba4c50c83a660164f75daf0000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000001400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000410475f2cbafbf3425ec8bccd96471ca65f8287f7cf51632a02de07e755e602a3f8fde1764936bd39dc72bf6cb52ba4cb793d42e5ec39465593f12e7a9d79c89d9ce00000000000000000000000000000000000000000000000000000000000000",
@@ -122,67 +120,66 @@ pub(crate) fn store_missing_validator_changes<DB: Blockstore + 'static + Clone>(
                 "0x000000000000000000000000000000000000000000000000000000000000000300000000000000000000000075f46a07294a497914b3c3a851d18fd5354288c00000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004e00000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004104a95c74edbd664d5b02f5771be83320ba623c08684c2919e6b0d14b8770236784616c3f9917c7cb0d1c1df8082439cab5abc7e97b8413b230cb0b99f424c3cb9300000000000000000000000000000000000000000000000000000000000000",
             ];
 
-            let logs = parse_logs(raw_configuration_changes)?;
+    let logs = parse_logs(raw_configuration_changes)?;
 
-            let validator_changes = ethers_contract::decode_logs::<NewStakingChangeRequestFilter>(&logs)?
-                .into_iter()
-                .map(|p| {
-                    StakingChangeRequest{
-                        configuration_number: p.configuration_number,
-                        change: StakingChange {
-                            op: p.op,
-                            payload: p.payload,
-                            validator: p.validator
-                        }
-                    }
-                })
-                .collect();
+    let validator_changes = ethers_contract::decode_logs::<NewStakingChangeRequestFilter>(&logs)?
+        .into_iter()
+        .map(|p| StakingChangeRequest {
+            configuration_number: p.configuration_number,
+            change: StakingChange {
+                op: p.op,
+                payload: p.payload,
+                validator: p.validator,
+            },
+        })
+        .collect();
 
-            let gateway_addr = EthAddress::from(
-                ethers::types::Address::from_str("0x77aa40b105843728088c0132e43fc44348881da8")
-                    .expect("invalid gateway addr"),
-            );
+    let gateway_addr = EthAddress::from(
+        ethers::types::Address::from_str("0x77aa40b105843728088c0132e43fc44348881da8")
+            .expect("invalid gateway addr"),
+    );
 
-            info!(
-                "[Upgrade at height {}] Apply missing validator changes",
-                state.block_height()
-            );
+    info!(
+        "[Upgrade at height {}] Apply missing validator changes",
+        state.block_height()
+    );
 
-            let topdown = ContractCaller::<_, _, TopDownFinalityFacetErrors>::new(
-                gateway_addr,
-                TopDownFinalityFacet::new,
-            );
+    let topdown = ContractCaller::<_, _, TopDownFinalityFacetErrors>::new(
+        gateway_addr,
+        TopDownFinalityFacet::new,
+    );
 
-            let ret = topdown.call_with_return(state, |c| c.store_validator_changes(validator_changes))?.into_return();
+    let ret = topdown
+        .call_with_return(state, |c| c.store_validator_changes(validator_changes))?
+        .into_return();
 
-            info!(
-                "[Upgrade at height {}] Applied validator changes with result: {:#?}",
-                state.block_height(),
-                ret.apply_ret.msg_receipt,
-            );
+    info!(
+        "[Upgrade at height {}] Applied validator changes with result: {:#?}",
+        state.block_height(),
+        ret.apply_ret.msg_receipt,
+    );
 
-            let finality = ParentFinality {
-                height: topdown_height,
-                block_hash: topdown_hash
-            };
+    let finality = ParentFinality {
+        height: topdown_height,
+        block_hash: topdown_hash,
+    };
 
-            let ret = topdown.call_with_return(
-                state, |c| c.commit_parent_finality(finality.clone())
-            )?.into_return();
+    let ret = topdown
+        .call_with_return(state, |c| c.commit_parent_finality(finality.clone()))?
+        .into_return();
 
-            info!(
-                "[Upgrade at height {}] Overwrote parent finality with result: {:#?}",
-                state.block_height(),
-                ret.apply_ret.msg_receipt,
-            );
+    info!(
+        "[Upgrade at height {}] Overwrote parent finality with result: {:#?}",
+        state.block_height(),
+        ret.apply_ret.msg_receipt,
+    );
 
-            info!(
-                "[Upgrade at height {}] Updated parent finality",
-                state.block_height()
-            );
+    info!(
+        "[Upgrade at height {}] Updated parent finality",
+        state.block_height()
+    );
 
-            Ok(())
-        }))
+    Ok(())
 }
 
 pub fn parse_logs(logs: Vec<&str>) -> anyhow::Result<Vec<RawLog>> {

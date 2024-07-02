@@ -226,7 +226,6 @@ async fn run(settings: Settings) -> anyhow::Result<()> {
             topdown_config.exponential_back_off,
             topdown_config.exponential_retry_limit,
         )
-
         .with_proposal_delay(topdown_config.proposal_delay)
         .with_max_proposal_range(topdown_config.max_proposal_range);
 

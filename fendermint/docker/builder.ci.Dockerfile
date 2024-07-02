@@ -8,7 +8,7 @@
 # The goal of this step is to copy the `Cargo.toml` and `Cargo.lock` files _without_ the source code,
 # so that we can run a step in `builder` that compiles the dependencies only. To do so we first
 # copy the whole codebase then get rid of everything except the dependencies and do a build.
-FROM --platform=$BUILDPLATFORM ubuntu:latest as stripper
+FROM --platform=$BUILDPLATFORM ubuntu:jammy as stripper
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ RUN echo "fn main() { println!(\"I'm the dummy.\"); }" > fendermint/app/src/main
 # even though I add `aarch64` rustup target as a RUN step, it can't compile `core` later on
 # unless that step is repeated in the same command as the cargo build. That doesn't happen
 # with the `ubuntu` base and Rust installed.
-FROM --platform=$BUILDPLATFORM ubuntu:latest as builder
+FROM --platform=$BUILDPLATFORM ubuntu:jammy as builder
 
 RUN apt-get update && \
   apt-get install -y build-essential clang cmake protobuf-compiler curl \

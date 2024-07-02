@@ -14,9 +14,7 @@ use fendermint_eth_hardhat::{Hardhat, FQN};
 use fendermint_vm_actor_interface::diamond::{EthContract, EthContractMap};
 use fendermint_vm_actor_interface::eam::EthAddress;
 use fendermint_vm_actor_interface::ipc::IPC_CONTRACTS;
-use fendermint_vm_actor_interface::{
-    account, burntfunds, chainmetadata, cron, eam, fluence, init, ipc, reward, system, EMPTY_ARR,
-};
+use fendermint_vm_actor_interface::{account, burntfunds, chainmetadata, cron, eam, fluence, init, ipc, reward, system, EMPTY_ARR, fluence_batched};
 use fendermint_vm_core::{chainid, Timestamp};
 use fendermint_vm_genesis::{ActorMeta, Genesis, Power, PowerScale, Validator};
 use fvm_ipld_blockstore::Blockstore;
@@ -267,6 +265,17 @@ where
             .create_custom_actor(
                 fendermint_actor_fluence::FLUENCE_ACTOR_NAME,
                 fluence::FLUENCE_ACTOR_ID,
+                &EMPTY_ARR,
+                TokenAmount::zero(),
+                None,
+            )
+            .context("failed to create Fluence actor")?;
+
+        // Fluence batched actor
+        state
+            .create_custom_actor(
+                fendermint_actor_fluence_batched::FLUENCE_BATCHED_ACTOR_NAME,
+                fluence_batched::FLUENCE_BATCHED_ACTOR_ID,
                 &EMPTY_ARR,
                 TokenAmount::zero(),
                 None,

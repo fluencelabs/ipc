@@ -8,7 +8,10 @@ use std::path::Path;
 use std::process::{Command, Stdio};
 use std::thread;
 
-const ACTORS: &[&str] = &["chainmetadata", "eam", "fluence"];
+// fluence-batched is loaded on Kras and Dar through the upgrade mechanism not from genesis
+// but it's still included into this list to make experiments on newly created IPC networks
+// more transparent.
+const ACTORS: &[&str] = &["chainmetadata", "eam", "fluence", "fluence_batched"];
 
 const FILES_TO_WATCH: &[&str] = &["Cargo.toml", "src"];
 

@@ -48,13 +48,21 @@ where
         + SelfOps,
 {
     fn link_syscalls(linker: &mut Linker<K>) -> anyhow::Result<()> {
-        use fluence_fendermint_syscall::{SYSCALL_FUNCTION_NAME, SYSCALL_MODULE_NAME};
+        use fluence_fendermint_syscall::{
+            BATCHED_SYSCALL_FUNCTION_NAME, SYSCALL_FUNCTION_NAME, SYSCALL_MODULE_NAME,
+        };
 
         DefaultKernel::<K::CallManager>::link_syscalls(linker)?;
         linker.link_syscall(
             SYSCALL_MODULE_NAME,
             SYSCALL_FUNCTION_NAME,
             fluence_fendermint_syscall::run_randomx,
+        )?;
+
+        linker.link_syscall(
+            SYSCALL_MODULE_NAME,
+            BATCHED_SYSCALL_FUNCTION_NAME,
+            fluence_fendermint_syscall::run_randomx_batched,
         )?;
 
         Ok(())
