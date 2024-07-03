@@ -51,8 +51,9 @@ fn stage_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, Migra
 fn dar_upgrades<DB: Blockstore + 'static + Clone>() -> Vec<(BlockHeight, MigrationFunc<DB>)> {
     vec![
         // Deploy Batched Fluence Actor
-        // 592068 = 17 Jun 9:00 AM UTC => 600_000 = ~18 Jun 9:00 AM UTC
-        (600_000, upgrade03::deploy_fluence_batched_actor),
+        // 724729 = ~4 Jul 00:00 UTC
+        // % echo $(( $(cast block -f number --rpc-url https://ipc.dar.fluence.dev) + ( $(gdate -u -d 'Jul 4 00:00' +%s) - $(gdate -u +%s) ) / 10))
+        (724729, upgrade03::deploy_fluence_batched_actor),
     ]
 }
 
